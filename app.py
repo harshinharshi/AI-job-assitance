@@ -35,12 +35,13 @@ from streamlit_pills import pills
 # Configure Streamlit page settings
 st.set_page_config(
     layout="wide",
-    page_title="GenAI Job Agent",
-    page_icon="🦜"
+    page_title="AI Job Assistance",
+    page_icon="🚬"  # Cigarette emoji
 )
 
+
 # Main application title
-st.title("GenAI Job Agent - 🦜")
+st.title("AI Job Assistance")
 
 # Sidebar for file upload
 uploaded_file = st.sidebar.file_uploader(
