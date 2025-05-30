@@ -1,4 +1,4 @@
-## GenAI-job-agent
+## AI Job Assistance
 
 ### Description
 
