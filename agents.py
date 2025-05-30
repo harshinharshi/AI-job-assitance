@@ -202,7 +202,7 @@ def define_graph(llm: ChatOpenAI, llm_name: str) -> StateGraph:
     # Create Searcher Agent - handles job search operations
     search_agent = create_agent(
         llm=llm, 
-        tools=[job_pipeline], 
+        tools=[job_pipeline],  # job_pipeline is a tool that searches for jobs
         system_prompt=get_search_agent_prompt(llm_name)
     )
     search_node = functools.partial(agent_node, agent=search_agent, name="Searcher")
