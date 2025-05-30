@@ -1,6 +1,6 @@
 ## AI Job Assistance
 
-### Description
+### Descriptions
 
 This is a simple Langgraph/Langchain based AI agent as a learning experiment of how LLM-based agent will work. Motivation is to automate better seaching in API (in this case Linkedin job), find suitable matching given user resume and write a cover letter for the most matching job. There are different usecases can be extended on top of the current design. 
 
