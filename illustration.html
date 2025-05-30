@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain Multi-Agent Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .diagram-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            margin: 30px 0;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+            overflow: hidden;
+        }
+
+        .agent {
+            position: absolute;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .agent:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+
+        .supervisor {
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            width: 180px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .analyzer {
+            top: 200px;
+            left: 80px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            width: 150px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .searcher {
+            top: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #45b7d1, #2c5aa0);
+            color: white;
+            width: 150px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .generator {
+            top: 200px;
+            right: 80px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            width: 150px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .finish {
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: #2d5a3d;
+            width: 120px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .arrow {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .arrow-down {
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #666;
+        }
+
+        .arrow-up-left {
+            top: 320px;
+            left: 160px;
+            width: 0;
+            height: 0;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid #666;
+            transform: rotate(45deg);
+        }
+
+        .arrow-up-center {
+            top: 320px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 15px solid #666;
+        }
+
+        .arrow-up-right {
+            top: 320px;
+            right: 160px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 15px solid #666;
+            transform: rotate(-45deg);
+        }
+
+        .arrow-finish {
+            bottom: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #28a745;
+        }
+
+        .tool-info {
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 10px;
+            border-left: 5px solid #007bff;
+        }
+
+        .legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #007bff;
+        }
+
+        .state-flow {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: linear-gradient(90deg, rgba(0,123,255,0.1), rgba(0,123,255,0.05));
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .step-number {
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 LangChain Multi-Agent System Architecture</h1>
+        
+        <div class="diagram-container">
+            <!-- Supervisor Node -->
+            <div class="agent supervisor">
+                <div>🎯 SUPERVISOR</div>
+            </div>
+            
+            <!-- Worker Agents -->
+            <div class="agent analyzer">
+                <div>📊 ANALYZER</div>
+                <div class="tool-info">Tool: extract_cv</div>
+            </div>
+            
+            <div class="agent searcher">
+                <div>🔍 SEARCHER</div>
+                <div class="tool-info">Tool: job_pipeline</div>
+            </div>
+            
+            <div class="agent generator">
+                <div>✍️ GENERATOR</div>
+                <div class="tool-info">Tool: generate_letter</div>
+            </div>
+            
+            <!-- Finish Node -->
+            <div class="agent finish">
+                <div>🏁 FINISH</div>
+            </div>
+            
+            <!-- Arrows -->
+            <div class="arrow arrow-down"></div>
+            <div class="arrow arrow-up-left"></div>
+            <div class="arrow arrow-up-center"></div>
+            <div class="arrow arrow-up-right"></div>
+            <div class="arrow arrow-finish"></div>
+        </div>
+
+        <div class="legend">
+            <h3>🔧 Agent Responsibilities</h3>
+            <div class="legend-item">
+                <strong>Supervisor:</strong> Routes tasks between agents using OpenAI function calling. Decides when workflow is complete.
+            </div>
+            <div class="legend-item">
+                <strong>Analyzer:</strong> Extracts and analyzes CV/resume content using the extract_cv tool.
+            </div>
+            <div class="legend-item">
+                <strong>Searcher:</strong> Finds relevant job opportunities using the job_pipeline tool.
+            </div>
+            <div class="legend-item">
+                <strong>Generator:</strong> Creates personalized cover letters using the generate_letter_for_specific_job tool.
+            </div>
+        </div>
+
+        <div class="state-flow">
+            <h3>📋 Workflow Process</h3>
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div><strong>Entry Point:</strong> System starts at Supervisor with user input</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div><strong>Routing Decision:</strong> Supervisor analyzes current state and selects next agent</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div><strong>Agent Execution:</strong> Selected agent performs task using its specialized tool</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div><strong>Report Back:</strong> Agent returns results to Supervisor via shared state</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">5</div>
+                <div><strong>Continue or Finish:</strong> Supervisor decides to route to another agent or finish</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

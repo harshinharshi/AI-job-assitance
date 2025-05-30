@@ -1,0 +1,10 @@
+.ipynb_checkpoints/*
+data/*
+.env
+__pycache__/*
+notebooks/*
+tmp/*
+.conda/*
+.vscode/*
+*/__pycache__/*
+venv/
